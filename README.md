@@ -14,9 +14,10 @@ There are several algorithms to solve this problem, two of which are:
 * dynamic programming (https://en.wikipedia.org/wiki/Dynamic_programming)
 * branch and bound tree search (https://en.wikipedia.org/wiki/Branch_and_bound)
 
-This project implements both of these independently. It includes 2 different 
-varieties of the branch and bound algorithm, by varying how the best case scenario
-estimate is calculated.
+This project implements both of these algorithms independently.
+Both algorithms are guaranteed to find the optimal solution, however the
+branch and bound algorithm finds the solution much faster than the
+dynamic programming algorithm.
 
 ## Authors
 

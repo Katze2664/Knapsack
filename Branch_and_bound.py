@@ -5,12 +5,14 @@ from collections import namedtuple
 # Branch and bound algorithm for solving the Knapsack problem.
 # Items are sorted by density (value / weight) from highest to lowest.
 # Depth first search
-# "relax_infinite" means the estimator function (which provides a best case scenario estimate for each
-# node of the tree) assumes that infinite weight capacity remains so all future items can be taken.
+# The estimator function (which provides a best case scenario estimate for each node of the tree) assumes that
+# the final item it takes can be broken into pieces so that a proportion of its value can be used to fill the
+# remaining weight capacity.
 
 
 # Set path to data file
-file = "data/ks_30_0"
+files = ["data/ks_30_0", "data/ks_50_0", "data/ks_200_0", "data/ks_400_0", "data/ks_1000_0", "data/ks_10000_0"]
+
 
 # No need to modify below here
 Item = namedtuple("Item", ['index', 'value', 'weight'])
@@ -47,7 +49,7 @@ class Knapsack:
         self.alarm = 0
 
     def sorter(self):
-        self.items_sorted = sorted(self.items, key=lambda item: item.value, reverse=True)
+        self.items_sorted = sorted(self.items, key=lambda item: item.value/item.weight, reverse=True)
 
     def branchBound(self, start):
 
@@ -56,7 +58,7 @@ class Knapsack:
             self.solution = self.sorted_taken.copy()
 
         for i in range(start, self.item_count):
-            if self.estimator(i) <= self.best_value:
+            if self.estimator(i, self.room) <= self.best_value:
                 return
 
             value = self.items_sorted[i].value
@@ -74,10 +76,17 @@ class Knapsack:
                 self.room += weight
                 self.sorted_taken[i] = 0
 
-    def estimator(self, start):
+    def estimator(self, start, room):
         remaining_value = 0
         for i in range(start, self.item_count):
-            remaining_value += self.items_sorted[i].value
+            weight = self.items_sorted[i].weight
+            value = self.items_sorted[i].value
+            if weight <= room:
+                room -= weight
+                remaining_value += value
+            else:
+                remaining_value += value * (room/weight)
+                return self.value_taken + remaining_value
 
         return self.value_taken + remaining_value
 
@@ -89,11 +98,15 @@ class Knapsack:
 
         self.output_data = self.best_value, taken
 
-with open(file, "r") as input_file:
-    input_data = input_file.read()
-    value, taken = solve_it(input_data)
-    print("Number of items taken:", sum(taken))
-    print(f"Value collected = {value}")
-    print(f"Items taken = {taken}")
+for file in files:
+    with open(file, "r") as input_file:
+        initial_time = time.perf_counter()
+        input_data = input_file.read()
+        value, taken = solve_it(input_data)
+        print(f"File: {file}")
+        print("Number of items taken:", sum(taken))
+        print(f"Value collected = {value}")
+        print(f"Items taken = {taken}")
+        print(f"Time elapsed (seconds): = {time.perf_counter() - initial_time}\n")
 
-print("Time taken to find solution (seconds):", time.perf_counter() - start_time)
+print("Total time (seconds):", time.perf_counter() - start_time)

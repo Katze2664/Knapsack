@@ -5,8 +5,12 @@ from collections import namedtuple
 
 # Dynamic programming algorithm for solving the Knapsack problem.
 
-# Set path to data file
-file = "data/ks_30_0"
+# Add paths to data files to the list
+files = ["data/ks_30_0", "data/ks_50_0", "data/ks_200_0"]
+# It takes ~40 seconds to run these 3 files.
+
+# The assignment files take too long to run using this algorithm
+# files = ["data/ks_30_0", "data/ks_50_0", "data/ks_200_0", "data/ks_400_0", "data/ks_1000_0", "data/ks_10000_0"]
 
 # No need to modify below here
 Item = namedtuple("Item", ['index', 'value', 'weight'])
@@ -68,11 +72,15 @@ def traceBack(table, item_count, capacity, items):
     del taken[0]
     return taken
 
-with open(file, "r") as input_file:
-    input_data = input_file.read()
-    value, taken = solve_it(input_data)
-    print("Number of items taken:", sum(taken))
-    print(f"Value collected = {value}")
-    print(f"Items taken = {taken}")
+for file in files:
+    with open(file, "r") as input_file:
+        initial_time = time.perf_counter()
+        input_data = input_file.read()
+        value, taken = solve_it(input_data)
+        print(f"File: {file}")
+        print("Number of items taken:", sum(taken))
+        print(f"Value collected = {value}")
+        print(f"Items taken = {taken}")
+        print(f"Time elapsed (seconds): = {time.perf_counter() - initial_time}\n")
 
 print("Time taken to find solution (seconds):", time.perf_counter() - start_time)
